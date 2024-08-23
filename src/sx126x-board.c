@@ -57,7 +57,9 @@ static RadioOperatingModes_t OperatingMode;
  */
 Gpio_t AntPow;
 // Gpio_t DeviceSel;
-#define RADIO_ANT_SWITCH_POWER 22
+
+// this should be in the radio_config.h file ONLY
+// #define RADIO_ANT_SWITCH_POWER 22
 /*!
  * Debug GPIO pins objects
  */
