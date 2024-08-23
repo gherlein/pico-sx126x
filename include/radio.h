@@ -6,20 +6,14 @@
  * \copyright Revised BSD License, see section \ref LICENSE.
  *
  * \code
- *                ______                              _
- *               / _____)             _              | |
- *              ( (____  _____ ____ _| |_ _____  ____| |__
- *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- *               _____) ) ____| | | || |_| ____( (___| | | |
- *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
- *              (C)2013-2017 Semtech
- *
+ * Derived from code in this zip file:  https://files.waveshare.com/wiki/RP2040-LoRa/Rp2040-lora-code.zip
+ * Found the code in this wiki: https://www.waveshare.com/wiki/RP2040-LoRa
  * \endcode
  *
- * \author    Miguel Luis ( Semtech )
+ * \author    Greg Herlein - gherlein@herlein.com - https://www.linkedin.com/in/gherlein/
  *
- * \author    Gregory Cristian ( Semtech )
  */
+
 #ifndef __RADIO_H__
 #define __RADIO_H__
 
