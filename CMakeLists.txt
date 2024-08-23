@@ -6,24 +6,26 @@ include(pico_sdk_import.cmake)
 project(pico-sx126x C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "boards/*.[ch]")
+file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/*.[ch]")
 
 pico_sdk_init()
 
-add_library( pico-sx126x
+add_library(pico-sx126x
     ${SOURCES}
 )
+
+target_include_directories(pico-sx126x
+    PUBLIC 
+    include
+    semtech-pico-hal/include
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 
 target_link_libraries(pico-sx126x
     pico_stdlib
     pico_multicore
     hardware_irq
     hardware_spi
+    semtech-pico-hal
 )
-
-target_include_directories(pico-sx126x
-    PUBLIC 
-    includes
-    "${CMAKE_CURRENT_SOURCE_DIR}"
-)
-

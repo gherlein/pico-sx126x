@@ -25,7 +25,11 @@
 #include <math.h>
 #include <string.h>
 #include "radio.h"
+#include "timer.h"
+#include "delay.h"
 #include "sx126x.h"
+#include "sx126x-board.h"
+#include "board.h"
 
 /*!
  * \brief Initializes the radio
