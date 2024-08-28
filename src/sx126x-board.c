@@ -24,6 +24,13 @@
  * \author    Gregory Cristian ( Semtech )
  */
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "hardware/gpio.h"
+#include "hardware/spi.h"
+#include "pico/binary_info.h"
+#include "pico/stdlib.h"
 #include "radio-config.h"
 #include "radio.h"
 #include "sx126x-board.h"
@@ -68,7 +75,7 @@ Gpio_t DbgPinRx;
 static inline void cs_select(void)
 {
     asm volatile("nop \n nop \n nop");
-    gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 0); // Active low
+    gpio_put(RADIO_NSS, 1); // Active low
     asm volatile("nop \n nop \n nop");
     // sleep_ms(1);
 }
@@ -76,13 +83,15 @@ static inline void cs_select(void)
 static inline void cs_deselect(void)
 {
     asm volatile("nop \n nop \n nop");
-    gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 1);
+    gpio_put(RADIO_NSS, 0);
     asm volatile("nop \n nop \n nop");
     // sleep_ms(1);
 }
 
 void SX126xIoInit(spi_inst_t *spi)
 {
+    printf("SX126xIoInit()\n");
+
     SX126x.spi = spi;
 
     // RADIO_BUSY is an input
@@ -98,6 +107,9 @@ void SX126xIoInit(spi_inst_t *spi)
     gpio_init(RADIO_NSS);
     gpio_set_dir(RADIO_NSS, GPIO_OUT);
     gpio_put(RADIO_NSS, 1);
+
+    SX126xReset();
+
 #ifdef ORIG
     GpioInit(&SX126x.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
     GpioInit(&SX126x.BUSY, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
@@ -183,9 +195,13 @@ void SX126xSetOperatingMode(RadioOperatingModes_t mode)
 
 void SX126xReset(void)
 {
+    gpio_put(RADIO_RESET, 1);
+    sleep_ms(2);
     gpio_put(RADIO_RESET, 0);
     sleep_ms(2);
     gpio_put(RADIO_RESET, 1);
+    sleep_ms(10);
+
 #ifdef ORIG
     DelayMs(10);
     GpioInit(&SX126x.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);

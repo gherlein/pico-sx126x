@@ -16,7 +16,7 @@ extern "C"
  */
 #define RADIO_RESET 27
 
-#define RADIO_MOSI 19
+#define RADIO_MOSI 20
 #define RADIO_MISO 16
 #define RADIO_SCLK 18
 
