@@ -1,21 +1,5 @@
-/*!
- * \file      board-config.h
- *
- * \brief     Board configuration
- *
- * \copyright Revised BSD License, see section \ref LICENSE.
- *
- * \code
- * Derived from code in this zip file:  https://files.waveshare.com/wiki/RP2040-LoRa/Rp2040-lora-code.zip
- * Found the code in this wiki: https://www.waveshare.com/wiki/RP2040-LoRa
- * \endcode
- *
- * \author    Greg Herlein
- *
- */
-
-#ifndef __BOARD_CONFIG_H__
-#define __BOARD_CONFIG_H__
+#ifndef __RADIO_CONFIG_H__
+#define __RADIO_CONFIG_H__
 
 #ifdef __cplusplus
 extern "C"
@@ -32,18 +16,16 @@ extern "C"
  */
 #define RADIO_RESET 27
 
-#define RADIO_MOSI 3
-#define RADIO_MISO 4
-#define RADIO_SCLK 2
+#define RADIO_MOSI 19
+#define RADIO_MISO 16
+#define RADIO_SCLK 18
 
-#define RADIO_NSS 13
-#define RADIO_BUSY 18
-#define RADIO_DIO_1 16
-
-#define RADIO_ANT_SWITCH_POWER 17
+#define RADIO_NSS 17
+#define RADIO_BUSY 26
+#define RADIO_DIO_1 28
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __BOARD_CONFIG_H__
+#endif // __RADIO_CONFIG_H__

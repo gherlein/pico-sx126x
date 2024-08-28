@@ -65,8 +65,39 @@ Gpio_t DbgPinTx;
 Gpio_t DbgPinRx;
 #endif
 
-void SX126xIoInit(void)
+static inline void cs_select(void)
 {
+    asm volatile("nop \n nop \n nop");
+    gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 0); // Active low
+    asm volatile("nop \n nop \n nop");
+    // sleep_ms(1);
+}
+
+static inline void cs_deselect(void)
+{
+    asm volatile("nop \n nop \n nop");
+    gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 1);
+    asm volatile("nop \n nop \n nop");
+    // sleep_ms(1);
+}
+
+void SX126xIoInit(spi_inst_t *spi)
+{
+    SX126x.spi = spi;
+
+    // RADIO_BUSY is an input
+    gpio_init(RADIO_BUSY);
+    gpio_set_dir(RADIO_NSS, GPIO_IN);
+
+    // Reset is active-low
+    gpio_init(RADIO_RESET);
+    gpio_set_dir(RADIO_RESET, GPIO_OUT);
+    gpio_put(RADIO_RESET, 1);
+
+    // Chip select NSS is active-low, so we'll initialise it to a driven-high state
+    gpio_init(RADIO_NSS);
+    gpio_set_dir(RADIO_NSS, GPIO_OUT);
+    gpio_put(RADIO_NSS, 1);
 #ifdef ORIG
     GpioInit(&SX126x.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
     GpioInit(&SX126x.BUSY, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
@@ -77,6 +108,7 @@ void SX126xIoInit(void)
 
 void SX126xIoIrqInit(DioIrqHandler dioIrq)
 {
+
 #ifdef ORIG
     GpioSetInterrupt(&SX126x.DIO1, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, dioIrq);
 #endif
@@ -151,8 +183,10 @@ void SX126xSetOperatingMode(RadioOperatingModes_t mode)
 
 void SX126xReset(void)
 {
+    gpio_put(RADIO_RESET, 0);
+    sleep_ms(2);
+    gpio_put(RADIO_RESET, 1);
 #ifdef ORIG
-
     DelayMs(10);
     GpioInit(&SX126x.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
     DelayMs(20);
@@ -163,6 +197,11 @@ void SX126xReset(void)
 
 void SX126xWaitOnBusy(void)
 {
+    while (gpio_get(RADIO_BUSY))
+    {
+        sleep_us(10);
+    }
+
 #ifdef ORIG
 
     while (GpioRead(&SX126x.BUSY) == 1)
@@ -195,49 +234,37 @@ void SX126xWakeup(void)
 
 void SX126xWriteCommand(RadioCommands_t command, uint8_t *buffer, uint16_t size)
 {
-#ifdef ORIG
-
     SX126xCheckDeviceReady();
-
-    GpioWrite(&SX126x.Spi.Nss, 0);
-
-    SpiInOut(&SX126x.Spi, (uint8_t)command);
-
+    cs_select();
+    while (!spi_is_writable(spi_default))
+    {
+        sleep_us(100);
+    }
+    spi_write_blocking(SX126x.spi, (uint8_t *)&command, 1);
     for (uint16_t i = 0; i < size; i++)
     {
-        SpiInOut(&SX126x.Spi, buffer[i]);
+        spi_write_blocking(SX126x.spi, buffer, size);
     }
-
-    GpioWrite(&SX126x.Spi.Nss, 1);
-
-    if (command != RADIO_SET_SLEEP)
-    {
-        SX126xWaitOnBusy();
-    }
-#endif
+    cs_deselect();
+    SX126xWaitOnBusy();
 }
 
 uint8_t SX126xReadCommand(RadioCommands_t command, uint8_t *buffer, uint16_t size)
 {
-
     uint8_t status = 0;
-#ifdef ORIG
     SX126xCheckDeviceReady();
-
-    GpioWrite(&SX126x.Spi.Nss, 0);
-
-    SpiInOut(&SX126x.Spi, (uint8_t)command);
-    status = SpiInOut(&SX126x.Spi, 0x00);
+    cs_select();
+    while (!spi_is_readable(spi_default))
+    {
+        sleep_us(100);
+    }
+    spi_write_blocking(SX126x.spi, (uint8_t *)&command, 1);
     for (uint16_t i = 0; i < size; i++)
     {
-        buffer[i] = SpiInOut(&SX126x.Spi, 0);
+        status = spi_write_read_blocking(SX126x.spi, 0, buffer, size);
     }
-
-    GpioWrite(&SX126x.Spi.Nss, 1);
-
+    cs_deselect();
     SX126xWaitOnBusy();
-
-#endif
     return status;
 }
 

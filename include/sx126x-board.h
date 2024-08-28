@@ -35,7 +35,7 @@ extern "C"
     /*!
      * \brief Initializes the radio I/Os pins interface
      */
-    void SX126xIoInit(void);
+    void SX126xIoInit(spi_inst_t *spi);
 
     /*!
      * \brief Initializes DIO IRQ handlers
