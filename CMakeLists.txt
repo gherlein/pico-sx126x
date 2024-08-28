@@ -17,7 +17,6 @@ add_library(pico-sx126x
 target_include_directories(pico-sx126x
     PUBLIC 
     include
-    semtech-pico-hal/include
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
@@ -27,5 +26,4 @@ target_link_libraries(pico-sx126x
     pico_multicore
     hardware_irq
     hardware_spi
-    semtech-pico-hal
 )

@@ -21,11 +21,7 @@
  * \author    Gregory Cristian ( Semtech )
  */
 #include <string.h>
-#include "utilities.h"
-#include "gpio.h"
-#include "timer.h"
 #include "radio.h"
-#include "delay.h"
 #include "sx126x.h"
 #include "sx126x-board.h"
 

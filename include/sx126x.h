@@ -33,10 +33,9 @@ extern "C"
 #include <math.h>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
+#include "hardware/spi.h"
 #include "pico/binary_info.h"
 #include "radio.h"
-#include "gpio.h"
-#include "spi.h"
 
 #define SX1261 1
 #define SX1262 2
@@ -678,12 +677,12 @@ extern "C"
      */
     typedef struct SX126x_s
     {
-        Gpio_t Reset;
-        Gpio_t BUSY;
-        Gpio_t DIO1;
-        Gpio_t DIO2;
-        Gpio_t DIO3;
-        Spi_t Spi;
+        uint8_t Reset;
+        uint8_t BUSY;
+        uint8_t DIO1;
+        uint8_t DIO2;
+        uint8_t DIO3;
+        spi_inst_t *spi;
         PacketParams_t PacketParams;
         PacketStatus_t PacketStatus;
         ModulationParams_t ModulationParams;
