@@ -25,8 +25,7 @@
  *
  * \param [IN] events Structure containing the driver callback functions
  */
-void RadioInit(RadioEvents_t *events);
-
+void RadioInit(RadioEvents_t *events, spi_inst_t *spi);
 /*!
  * Return current radio status
  *
@@ -500,13 +499,14 @@ static uint8_t RadioGetFskBandwidthRegValue(uint32_t bandwidth)
         ;
 }
 
-void RadioInit(RadioEvents_t *events)
+void RadioInit(RadioEvents_t *events, spi_inst_t *spi)
 {
+    SX126x.spi = spi;
     RadioEvents = events;
-    SX126xIoInit(spi0);
+    SX126xIoInit();
     SX126xReset();
 
-    // SX126xInit(RadioOnDioIrq);
+    SX126xInit(RadioOnDioIrq);
     SX126xSetStandby(STDBY_RC);
     SX126xSetRegulatorMode(USE_DCDC);
 

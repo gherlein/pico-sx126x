@@ -88,11 +88,9 @@ static inline void cs_deselect(void)
     // sleep_ms(1);
 }
 
-void SX126xIoInit(spi_inst_t *spi)
+void SX126xIoInit(void)
 {
     printf("SX126xIoInit()\n");
-
-    SX126x.spi = spi;
 
     // RADIO_BUSY is an input
     gpio_init(RADIO_BUSY);
@@ -108,13 +106,29 @@ void SX126xIoInit(spi_inst_t *spi)
     gpio_set_dir(RADIO_NSS, GPIO_OUT);
     gpio_put(RADIO_NSS, 1);
 
-    SX126xReset();
-
 #ifdef ORIG
     GpioInit(&SX126x.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
     GpioInit(&SX126x.BUSY, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
     GpioInit(&SX126x.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
 // GpioInit( &DeviceSel, RADIO_DEVICE_SEL, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
+}
+
+void SX126xReset(void)
+{
+    printf("SX126xReset()\n");
+
+    gpio_put(RADIO_RESET, 0);
+    sleep_ms(10);
+    gpio_put(RADIO_RESET, 1);
+    sleep_ms(10);
+
+#ifdef ORIG
+    DelayMs(10);
+    GpioInit(&SX126x.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+    DelayMs(20);
+    GpioInit(&SX126x.Reset, RADIO_RESET, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0); // internal pull-up
+    DelayMs(10);
 #endif
 }
 
@@ -193,24 +207,6 @@ void SX126xSetOperatingMode(RadioOperatingModes_t mode)
 #endif
 }
 
-void SX126xReset(void)
-{
-    gpio_put(RADIO_RESET, 1);
-    sleep_ms(2);
-    gpio_put(RADIO_RESET, 0);
-    sleep_ms(2);
-    gpio_put(RADIO_RESET, 1);
-    sleep_ms(10);
-
-#ifdef ORIG
-    DelayMs(10);
-    GpioInit(&SX126x.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-    DelayMs(20);
-    GpioInit(&SX126x.Reset, RADIO_RESET, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0); // internal pull-up
-    DelayMs(10);
-#endif
-}
-
 void SX126xWaitOnBusy(void)
 {
     while (gpio_get(RADIO_BUSY))
@@ -227,6 +223,7 @@ void SX126xWaitOnBusy(void)
 
 void SX126xWakeup(void)
 {
+
 #ifdef ORIG
 
     CRITICAL_SECTION_BEGIN();

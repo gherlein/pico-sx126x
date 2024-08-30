@@ -20,7 +20,11 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "pico/stdlib.h"
 #include "radio.h"
 #include "sx126x.h"
 #include "sx126x-board.h"
@@ -109,6 +113,8 @@ void SX126xProcessIrqs(void);
 
 void SX126xInit(DioIrqHandler dioIrq)
 {
+    printf("SX126xInit()\n");
+
     SX126xReset();
 
     SX126xIoIrqInit(dioIrq);

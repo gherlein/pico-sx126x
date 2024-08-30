@@ -24,6 +24,7 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "hardware/spi.h"
 
     /*!
      * Radio driver supported modems
@@ -112,7 +113,7 @@ extern "C"
          *
          * \param [IN] events Structure containing the driver callback functions
          */
-        void (*Init)(RadioEvents_t *events);
+        void (*Init)(RadioEvents_t *events, spi_inst_t *spi);
         /*!
          * Return current radio status
          *
